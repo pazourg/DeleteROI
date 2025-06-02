@@ -26,4 +26,3 @@ rm -f ${SCRIPT_DIR}/Lib/DeleteROIPkg/*.class
   jar -cf "$SCRIPT_DIR/Downloads/DeleteROI-${VERSION}.jar" $(find DeleteROIPkg -name '*.py')
   echo "JAR created successfully at Downloads/DeleteROI-${VERSION}.jar"
 )
-

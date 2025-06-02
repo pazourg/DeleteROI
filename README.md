@@ -49,6 +49,8 @@ To execute make_jar.sh from the command line, ensure you are in the src director
 > cd DeleteROI
 > ./make_jar.sh
 Compiling Version: 1.0.1
+Creating JAR: DeleteROI-1.0.1.jar
+JAR created successfully at Downloads/DeleteROI-1.0.1.jar
 >
 ```
 Note that the version number is stored in the __init__.py file located in Lib/DeleteROIPkg.
