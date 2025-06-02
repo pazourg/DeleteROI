@@ -1,0 +1,10 @@
+*py~
+**/*py~
+*.class
+**/*.class
+.DS_Store
+**/.DS_Store
+*.*~
+# Ignore any jar file except in the Downloads directory
+*.jar
+!/Downloads/*.jar
