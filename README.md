@@ -44,7 +44,7 @@ download all of the code from GitHub either by cloning the repository or downloa
 A build is triggered via the make_jar.sh script.  This is currently written as a bash script for Linux/Mac systems.  While a Windows 
 script is not currently provided it should be trivial to manually perform the operations.
 
-To execute make_jar.sh from the command line, ensure you are in the src directory (cd src) and execute as follows:
+To execute make_jar.sh from the command line, ensure you are in the directory containing the make_jar.sh script (cd DeleteROI) and execute as follows:
 ```
 > cd DeleteROI
 > ./make_jar.sh
