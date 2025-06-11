@@ -14,14 +14,38 @@ cleaned data is output using the CiliaQ file formats.
 
 # Installation
 
-DeleteROI is dependent on installations of FIJI (Schindelin et al., 2012) and the output from CiliaQ (Hansen et al., 2021). 
+DeleteROI is dependent upon installations of FIJI (Schindelin et al., 2012) and the output from CiliaQ (Hansen et al., 2021). 
 You will need to install [FIJI version 2024-09-25](https://imagej.net/software/fiji/downloads) or later noting the location
-of the installation.  Once the installation is complete, you will need to move the following files as indicated:
-  - place DeleteROI_.py in the \<FIJI-install-dir>/scripts/Plugins folder  
-  - place DeleteROI-1.0.1.jar (or latest version number) in the \<FIJI-install-dir>/jars/Lib (you may need to create the Lib directory).  Please note that when updating to a new version ensure that only one (1) jar file is present, delete all other versions.  Failure to ensure that will result in indeterminate behavior.
-     
-Restart FIJI and run the software via Plugins -> DeleteROI.  When installing new versions of DeleteROI you must restart
-FIJI to ensure the updated jar file is being used.
+of the installation directory.  
+
+The DeleteROI plugin is located in the [Downloads](/Downloads) directory (either in GitHub or built locally as described 
+in the [Building a new version](#building-a-new-version) section).  It is self contained in a <b>jar</b> file starting with 
+the name "DeleteROI_" (the underscore is required by Image/Fiji).  The latest version of DeleteROI is the following:
+
+> [DeleteROI_-1.0.2.jar](/Downloads/DeleteROI_-1.0.2.jar)  - Released June 11, 2025
+
+You can install the plugin by starting up Fiji and then selecting Plugin->Install... from the menu.  Please note that there
+are two versions of the Install command in the Plugin menu.  Select the "Install..." option <b>not</b> the "Install Plugin" 
+option.  This will present a file chooser where you will select the Delete_ROI jar file downloaded as describe above.  The 
+next screen is confirming where to install the jar file - the plugin directory for Fiji.  Note the location, you might this
+when performing an upgrade.
+
+The manual plugin installation method does not currently have the ability to manage version upgrades.  This means that the
+installation of a newer version of DeleteROI (when the version number changes) will result in two versions being installed.
+This is invalid and will result in DeleteROI showing up twice in the menu.  During "Plugin->Install..." execution, you should 
+see a Plugin configuration error popup when installing a new version.   At the moment you will need to manually delete the 
+older version described in the popup before restarting Fiji.  Using the file browser, navigate to the plugins directory you noted
+during plugin installation (see above) and delete the older version of the plugin (ensure that only 1 DeleteROI_ jar file is
+present).
+
+Remember to restart Fiji and run the software via Plugins -> DeleteROI to activate the new version.
+
+Windows users: please note that you might need to start Fiji in Administrator mode (right click on Fiji application
+and select "Run as administrator") in order to install or upgrade the plugin.  Failure to do so may result in failures due 
+to permission issues.  You will only need to do this while running the Plugin->Install... operation.  You should not run 
+Fiji as Administrator during normal usage.
+
+We are investigating adding DeleteROI to the Fiji/Imagej plugin repository to simplfy installation.
 
 # Examples
 
@@ -42,15 +66,18 @@ First create a directory locally to hold all of the source code, we will assume 
 download all of the code from GitHub either by cloning the repository or downloading it as a zip file/unpacking.
 
 A build is triggered via the make_jar.sh script.  This is currently written as a bash script for Linux/Mac systems.  While a Windows 
-script is not currently provided it should be trivial to manually perform the operations.
+script is not currently provided it should be feasible to manually perform the operations.
 
 To execute make_jar.sh from the command line, ensure you are in the directory containing the make_jar.sh script (cd DeleteROI) and execute as follows:
 ```
 > cd DeleteROI
 > ./make_jar.sh
-Compiling Version: 1.0.1
-Creating JAR: DeleteROI-1.0.1.jar
-JAR created successfully at Downloads/DeleteROI-1.0.1.jar
+Compiling Version: 1.0.2
+Searching for Fiji jar files
+  -> Using Fiji Jars files: /Applications/Fiji.app/jars/*
+Compiling DeleteROI_Plugin.java
+Creating JAR: DeleteROI_-1.0.2.jar
+JAR created successfully at: Downloads/DeleteROI_-1.0.2.jar
 >
 ```
 Note that the version number is stored in the __init__.py file located in Lib/DeleteROIPkg.

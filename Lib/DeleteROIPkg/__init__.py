@@ -36,7 +36,7 @@ from DeleteROIPkg.Utilities import parm_columns, parm_max_rows
 from DeleteROIPkg.Utilities import OPTIONS
 
 # Constants 
-VERSION = "1.0.1"
+VERSION = "1.0.2"
 
 # https://imagej.net/scripting/jython/
 
