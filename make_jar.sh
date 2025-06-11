@@ -104,7 +104,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # Define the target jar file
 JAR_FILENAME="DeleteROI_-${VERSION}.jar"
-JAR_FILE_DL="Downloads/${JAR_FILENAME}"
+JAR_FILE_DL="Releases/${JAR_FILENAME}"
 
 # Cleanup any left over files
 rm -f "${SCRIPT_DIR}/${JAR_FILE_DL}"
