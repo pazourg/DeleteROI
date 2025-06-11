@@ -22,7 +22,7 @@ The DeleteROI plugin is located in the [Downloads](/Downloads) directory (either
 in the [Building a new version](#building-a-new-version) section).  It is self contained in a <b>jar</b> file starting with 
 the name "DeleteROI_" (the underscore is required by Image/Fiji).  The latest version of DeleteROI is the following:
 
-> [DeleteROI_-1.0.2.jar](/Downloads/DeleteROI_-1.0.2.jar)  - Released June 11, 2025
+> <a href="/Downloads/DeleteROI_-1.0.2.jar" download>DeleteROI_-1.0.2.jar</a>  - Released June 11, 2025
 
 You can install the plugin by starting up Fiji and then selecting Plugin->Install... from the menu.  Please note that there
 are two versions of the Install command in the Plugin menu.  Select the "Install..." option <b>not</b> the "Install Plugin" 
@@ -51,8 +51,8 @@ We are investigating adding DeleteROI to the Fiji/Imagej plugin repository to si
 
 To assist in learning how to use DeleteROI, an example dataset is available at [Cilia.pro/DeleteROI](https://cilia.pro/DeleteROI/ExampleData/) 
 to be downloaded and used to try out the overall functionality.  In addition, the full paper in PDF format can be 
-directly [downloaded here](/Documentation/DeleteROI_05_30_2025.pdf) 
-which provides additional usage information.
+directly <a href="/Documentation/DeleteROI_05_30_2025.pdf" download>downloaded here</a> which provides additional usage 
+information.
 
 Once you have started DeleteROI and selected the directory containing the example dataset a randomized Montage will be
 generated that allows you to select (X out) images that are not relevant.  This will cause the corresponding ROI entries
