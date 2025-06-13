@@ -62,8 +62,11 @@ def main():
     result      = ""
     
     try:
+    	# Define the title of the SelectFilesDialog to include the version number
+    	title = "DeleteROI File Selector   - DeleteROI v{}".format(VERSION)
+    	
         # Prompt the user for the bundles to the processed.
-        select_files = SelectFilesDialog("DeleteROI File Selector", session_mgr, bundle_mgr, slide_mgr)
+        select_files = SelectFilesDialog(title, session_mgr, bundle_mgr, slide_mgr)
         status, restored = select_files.execute()
         
         # Save any preferences

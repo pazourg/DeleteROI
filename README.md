@@ -27,7 +27,7 @@ the name "DeleteROI_" (the underscore is required by Image/Fiji).  The latest ve
 You can install the plugin by starting up Fiji and then selecting Plugin->Install... from the menu.  Please note that there
 are two versions of the Install command in the Plugin menu.  Select the "Install..." option <b>not</b> the "Install Plugin" 
 option.  This will present a file chooser where you will select the Delete_ROI jar file downloaded as describe above.  The 
-next screen is confirming where to install the jar file - the plugin directory for Fiji.  Note the location, you might this
+next screen is confirming where to install the jar file - the plugin directory for Fiji.  Note the location, you might need this
 when performing an upgrade.
 
 The manual plugin installation method does not currently have the ability to manage version upgrades.  This means that the
@@ -80,7 +80,7 @@ Creating JAR: DeleteROI_-1.0.2.jar
 JAR created successfully at: Releases/DeleteROI_-1.0.2.jar
 >
 ```
-Note that the version number is stored in the __init__.py file located in Lib/DeleteROIPkg.
+Note that the version number is stored in the \_\_init\_\_.py file located in Lib/DeleteROIPkg.
 
 # License
 
