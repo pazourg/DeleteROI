@@ -37,7 +37,7 @@ public class DeleteROI_Plugin implements PlugIn {
         try {
             PythonInterpreter interpreter = new PythonInterpreter();
             
-            InputStream scriptStream = DeleteROI_Plugin.class.getResourceAsStream("/DeleteROIPkg/DeleteROILauncher.py"); // Replace with your script path inside the jar
+            InputStream scriptStream = DeleteROI_Plugin.class.getResourceAsStream("/DeleteROIPkg/DeleteROILauncher.py");
             if (scriptStream != null) {
                 interpreter.execfile(scriptStream);
             } else {

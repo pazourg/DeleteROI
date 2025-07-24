@@ -21,10 +21,14 @@
 '''
 
 # Standard Python imports
+#import locale
+import re
 import traceback
 
 # Java Imports
 from java.awt        import Color, Font
+from java.util       import Locale
+from java.text       import NumberFormat
 
 # ImageJ Imports
 from ij              import IJ, Prefs
@@ -33,7 +37,6 @@ from ij.util         import FontUtil
 # Define constants
 parm_border_width  = 4
 parm_columns       = 8            # Montage - number of columns wide
-parm_delimiter     = "\t"         # CiliaQ output file delimiter
 parm_max_rows      = 10           # Montage - max number of rows
 parm_screen_height = 0            # Total Screen height
 parm_screen_width  = 0            # Total Screen width
@@ -63,7 +66,6 @@ class Options:
     PREF_KEY_KEEP_HEADING   = "{}{}".format(PREFS_PREFIX, "keep_heading")
     PREF_KEY_KEEP_UNUSED    = "{}{}".format(PREFS_PREFIX, "keep_unused")
     PREF_KEY_REM_BLANK_COLS = "{}{}".format(PREFS_PREFIX, "rem_blank_cols")
-    PREF_KEY_USE_TAB_DEL    = "{}{}".format(PREFS_PREFIX, "use_tab_del")
     
     # Values read from UI - initialize to default values.  We expect direct access to these values
     TYPE_ADJUST_MIN_MAX     = 1
@@ -100,7 +102,6 @@ class Options:
         self.keep_heading   = True         # Should the results header be kept?
         self.keep_unused    = True         # Should we keep the non-results sections?
         self.rem_blank_cols = False        # Remove blank columns from results
-        self.use_tab_del    = False        # Use a tab for the delimiter, otherwise a comma (CSV)
         
         # Load the prefererences
         self.loadPrefs()
@@ -242,10 +243,6 @@ class Options:
         print("OPTIONS: setting add_src_column to: {}".format(rem_blank_cols))
         self.rem_blank_cols = bool(rem_blank_cols)
         
-    def setUseTabDelimiter(self, tab_delimiter=False):
-        print("OPTIONS: setting use_tab_del to: {}".format(tab_delimiter))
-        self.use_tab_del = bool(tab_delimiter)
-    
     # Helper method to validate min/max formatting is correct.  This is essentially a kludge
     # to minimize the number of fields.
     def validate_min_max(self, channel_value):
@@ -277,7 +274,6 @@ class Options:
                 self.keep_heading   = bool(self.loadSinglePref(prefs,  Options.PREF_KEY_KEEP_HEADING,   self.keep_heading))
                 self.keep_unused    = bool(self.loadSinglePref(prefs,  Options.PREF_KEY_KEEP_UNUSED,    self.keep_unused))
                 self.rem_blank_cols = bool(self.loadSinglePref(prefs,  Options.PREF_KEY_REM_BLANK_COLS, self.rem_blank_cols))
-                self.use_tab_del    = bool(self.loadSinglePref(prefs,  Options.PREF_KEY_USE_TAB_DEL,    self.use_tab_del))
             else:
                 print("ERROR: Unable to load preferences: "+str(error))
                 
@@ -309,7 +305,6 @@ class Options:
             self.saveSinglePref(prefs, Options.PREF_KEY_KEEP_HEADING,    self.keep_heading)
             self.saveSinglePref(prefs, Options.PREF_KEY_KEEP_UNUSED,     self.keep_unused)
             self.saveSinglePref(prefs, Options.PREF_KEY_REM_BLANK_COLS,  self.rem_blank_cols)
-            self.saveSinglePref(prefs, Options.PREF_KEY_USE_TAB_DEL,     self.use_tab_del)
             
             prefs.savePreferences()
         except BaseException as e:
@@ -336,6 +331,63 @@ class Options:
     def __str__(self):
         return "OPTIONS: adjust_type={}, buffer_percent={}, scale={}, bc_c1={}, bc_c2={}, bc_c2={}, c1={}, c2={}, c3={}, roi_size={}, debug={}, src_folder={}".format(self.adjust_type, \
                 self.buffer_percent, self.scale, self.bc_channel_1, self.bc_channel_2, self.bc_channel_3, self.c1_sat, self.c2_sat, self.c3_sat, self.roi_size, self.debug, self.src_folder)
+
+# Helper class to format numbers
+class NumberFormatter:
+    #
+    # Locale constants/globals
+    locale_en_us       = Locale("en", "US")
+    locale_de_de       = Locale("de", "DE")
+
+    def __init__(self):
+        #
+        self.locale_current    = None
+        self.locale_num_format = None
+    
+    # Take the supplied value and convert it to a float
+    def float(self, value):
+        #
+        if self.locale_current != None:
+            return self.locale_formatter.parse(value)
+        else:
+            return float(value)
+        
+    def float_to_str(self, value, digits_after=5):
+        #
+        if self.locale_current != None:
+            self.locale_num_format.setMinimumFractionDigits(digits_after)
+            self.locale_num_format.setMaximumFractionDigits(digits_after)
+            return self.locale_num_format.format(value)
+        else:
+            return format % value
+        
+    # Guess at the current locality and change as appropriate
+    def determine_number_locality(self, s):
+        #
+        if s == None or len(s) == 0:
+            raise ValueError("Cannot determine locality with empty string")
+            
+        # Ensure it's a number of some form
+        m = re.match(r'-?[0-9\.,]+', s)
+        if m is None:
+            raise ValueError("Cannot determine locality - invalid value")
+                
+        # Seems like a number, puzzle it out
+        locality      = NumberFormatter.locale_en_us
+        first_comma   = s.index(',') if ',' in s else None
+        first_decimal = s.index('.') if '.' in s else None
+        
+        if first_comma == None or (first_decimal != None and first_comma < first_decimal):
+            # Likely US or insufficient info such that we will get it wrong
+            pass
+        elif (first_decimal != None and first_decimal < first_comma) or \
+             (first_decimal == None and first_comma != None):
+            locality = NumberFormatter.locale_de_de
+        
+        if (self.locale_current != locality):
+            self.locale_current   = locality
+            self.locale_formatter = NumberFormat.getInstance(locality)
+            trace("Changing LOCALITY: {}".format(locality))
 
 # Add item to list at specified index number
 def addItemToList(target, index, item):

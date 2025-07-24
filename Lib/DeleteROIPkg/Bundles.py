@@ -20,6 +20,7 @@
  * ===============================================================================
 '''
 
+import locale
 import os
 import re
 import shutil
@@ -34,9 +35,11 @@ from ij.plugin              import ZProjector
 from ij.process             import LUT
 
 # Our package imports
-from DeleteROIPkg.Utilities import close_all, trace, OPTIONS
+from DeleteROIPkg.Utilities import close_all, trace, OPTIONS, NumberFormatter
 
-     
+# Constants:
+field_delimiter   = "\t"        # Expected delimiter in TXT files
+
 # Manager to handle all defined bundles    
 class BundleManager:
     #
@@ -48,6 +51,7 @@ class BundleManager:
     def __init__(self):
         #
         self.bundles = []            # All defined bundles with internal ROi data
+        self.number_formatter = None # Helper class to parse/emit numbers in the correct locality format
     
     # Create a bundle to be processed
     def create_bundle(self, image_path, roi_data_path, bundle_id=-1):
@@ -180,7 +184,7 @@ class BundleManager:
     
 class CiliaQBundle:
     #
-    # This class is used to process an image/CiliaQ txt file generating the appropriate ROI information 
+    # This class is used to process an image/CiliaQ txt file generating the appropriate ROI information     
     #
     def __init__(self, bid, image_path, roi_data_path):
         # 
@@ -193,6 +197,9 @@ class CiliaQBundle:
         self.bundle_id     = bid
         self.image_path    = image_path
         self.roi_data_path = roi_data_path
+        
+        # Setup to handle locality (parsing numbers, etc.)
+        self.num_formatter = NumberFormatter()
 
         # Pointer to slide we are associated with
         self.slide         = None
@@ -568,9 +575,11 @@ class CiliaQBundle:
         #
         # roi_info structure will all of the important stuff
         roi_info = RoiInfo(self)
-    
+        
         #
-        # Open the CiliaQ output file (likely a tab delimited CSV)
+        # Open the CiliaQ output file (likely a tab delimited file).  We need to handle
+        # locality issues in which numbers might be formated using non-US localities.  This
+        # means thousands & decimal delimeter changes.  
         #
         with open(roi_data_path, 'r') as file:
             #
@@ -610,8 +619,8 @@ class CiliaQBundle:
             expected_columns = 3 + start_column
             
             for index in range(settings_region + 1, history_region - 1):
-                # We normalize this to a CSV format by converting any tabs to ","
-                columns = rows[index].replace("\t", ",").split(",")
+                columns = rows[index].split(field_delimiter)
+                
                 #
                 if len(columns) < expected_columns:
                     trace("SKIPPING --> {} < {}".format(len(columns), expected_columns))
@@ -620,7 +629,13 @@ class CiliaQBundle:
                 trace("[{}, {}]: [0]={},[1]={},[2]={}".format(index, len(columns), columns[0], columns[1], columns[2]))
                 
                 if columns[start_column].startswith("Calibration"):
-                    calibration = 1 / float(columns[start_column + 1])
+                    #
+                    cal_val = columns[start_column + 1]
+                    
+                    # Ensure that we have a good guest as to the locality
+                    self.num_formatter.determine_number_locality(cal_val)
+                    
+                    calibration = 1 / self.num_formatter.float(cal_val)
                     trace("calibration = {}".format(calibration))
                     break
         
@@ -634,8 +649,8 @@ class CiliaQBundle:
                  # Determine if this row is culled, 
                 is_culled = rows[index].startswith('#')
                 
-                # We normalize this to a CSV format by converting any tabs to ","
-                columns = rows[index].replace("\t", ",").split(",")
+                # Parse the lines into independent columns
+                columns = rows[index].split(field_delimiter)
                 
                 if len(columns) < expected_columns:
                     trace(" SKIPPING row[{}] --> ({})={}".format(index, len(columns), rows[index]))
@@ -652,7 +667,7 @@ class CiliaQBundle:
                 
                 if len(item_id) > 0 and len(item_x) > 0 and len(item_y) > 0:
                     # Save to the RoiInfo object
-                    roi_info.add_entry(item_id, float(item_x), float(item_y), is_culled)
+                    roi_info.add_entry(item_id, self.num_formatter.float(item_x), self.num_formatter.float(item_y), is_culled)
                     
                     # We successfully stored a row
                     processed_rows += 1
@@ -850,6 +865,7 @@ class RoiInfo:
         #
         bundle_id    = self.bundle.bundle_id
         image_name   = self.bundle.get_image_filename()
+        formatter    = self.bundle.num_formatter
         result       = False
         skipped_ids   = [int(id.item_id) for id in self.entries if id.isMarkedCulled()]       
         slide_id     = self.bundle.slide.slide_id if self.bundle.slide else "-"
@@ -933,10 +949,8 @@ class RoiInfo:
 
             for entry in self.entries:
                 #
-                line = in_file.readline()
-                
-                # We normalize this to a CSV format by converting any tabs to ","
-                columns = line.replace("\t", ",").split(",")
+                line    = in_file.readline()
+                columns = line.split(field_delimiter)
                 
                 if len(columns) < expected_columns:
                     errors.append("{},{} +--> ERROR: column count unexpected! SKIPPING ID[{}] --> num_columns={},  lines is: {}".format(slide_id, bundle_id, entry.item_id, len(columns), line))
@@ -1043,22 +1057,14 @@ class RoiInfo:
     
         return None;
 
-    # Take either an array of columns or a line and ensure that the delimiters match the OPTIONS setting
+    # If an array of columns is provided, create a line with appropriate delimiters
     def convertLineDelimiter(self, line):
         #
         if line is None:
             return None
         
         if isinstance(line, list):
-            if OPTIONS.use_tab_del:
-                results = u"\t".join(line)
-            else:
-                results = u",".join(line)
-        else:
-            if OPTIONS.use_tab_del:
-                results = line.replace(",", "\t")
-            else:
-                results = line.replace("\t", ",")
+            results = field_delimiter.join(line)
             
         return results
     

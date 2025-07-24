@@ -102,7 +102,8 @@ echo "  --> Using Fiji Jars files: ${FIJI_JARS}"
 # Resolve absolute path to the directory containing this script
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# Define the target jar file
+# Define the target jar file and ensure Releases exists
+mkdir -p Releases/
 JAR_FILENAME="DeleteROI_-${VERSION}.jar"
 JAR_FILE_DL="Releases/${JAR_FILENAME}"
 

@@ -319,10 +319,10 @@ class SelectFilesDialog(GenericDialog):
         # Build a list of checkmark -> files -> ROI Info
         missing        = []
         scenes         = []
-        img_pattern    = "_CQ_RP.tif"
-        roi_pattern    = "_CQ.txt"
-        active_pattern = "_CQ-active.txt"
-        matches        = fnmatch.filter(os.listdir(src_path), "*"+img_pattern)
+        img_pattern    = r'(_CQ_(?:\d+_\d+_)?RP\.tif)' #"_CQ_RP.tif"
+        roi_pattern    = r'(_CQ(?:_\d+_\d+)?\.txt)'    #"_CQ.txt"
+        #active_pattern = "-active.txt"                 # convert *.txt to *-active.txt
+        matches        = self.fnmatch_regex(src_path, img_pattern)
         
         trace("+--> found: {}".format(len(matches)))
         
@@ -363,7 +363,7 @@ class SelectFilesDialog(GenericDialog):
                 
                 if len(cq_match) > 0 and len(cq_match[0]) > 0:
                     root_name = cq_match[0]
-                    ciliaq    = fnmatch.filter(os.listdir(src_path), root_name+roi_pattern)
+                    ciliaq = self.fnmatch_regex(src_path, re.escape(root_name) + roi_pattern, False)
                     if len(ciliaq) == 1:
                         ciliaqfile = ciliaq.pop()
                         was_found  = True
@@ -371,7 +371,7 @@ class SelectFilesDialog(GenericDialog):
                         # Now add the files to the bundle manager
                         image_path  = self.create_fqn(src_path, filename)
                         roi_path    = self.create_fqn(src_path, ciliaqfile)
-                        active_path = self.create_fqn(src_path, root_name,  active_pattern)
+                        active_path = self.replace_ending(roi_path,  '.txt', '-active.txt')
                         
                         trace("image_path={}, roi_path={}, active_path={}".format(image_path, roi_path, active_path))
                         
@@ -659,6 +659,33 @@ class SelectFilesDialog(GenericDialog):
     def create_fqn(self, src_path, file_name, suffix=""):
         #
         return "{}{}{}{}".format(src_path, self.file_sep, file_name, suffix)
+        
+    # Search for matching filenames using the provides path and regex name expression
+    def fnmatch_regex(self, src_path, file_name_regex, prefix_wildcard=True):
+        #
+        if (prefix_wildcard):
+            pattern = r'.*?' + file_name_regex
+        else:
+            pattern = file_name_regex
+        
+        trace("fnmatch_regex: regex={}".format(pattern))
+        
+        # Now compile the expression
+        re_pattern = re.compile(pattern)
+        matches    = []
+        
+        # Now iterate over the file list pulling out matches
+        for file in os.listdir(src_path):
+            if re_pattern.match(file):
+                matches.append(file)
+                
+        return matches
+
+    # Simple replacement of end text in string
+    def replace_ending(self, text, old_ending, new_ending):
+        if text.endswith(old_ending):
+            return text[:-len(old_ending)] + new_ending
+        return text
 
     # Add a panel overriding how constraints are performed
     def addPanelRemainder(self, panel):
@@ -887,7 +914,7 @@ class SetMinMaxOptionsDialog(GenericDialog):
         self.addToSameRow()
         self.addNumericField(self.LABEL_MAX, OPTIONS.getBcMax(3), 0)
         
-		# Enable help for this screen
+        # Enable help for this screen
         self.addHelp(HELP.getHelp(HELP.KEY_MMOPTIONS))
         
         self.showDialog()
@@ -1012,7 +1039,7 @@ class SetAdvancedOptions(GenericDialog):
         # Set any listeners needed
         self.src_column.addKeyListener(self);
 
-		# Enable help for this screen
+        # Enable help for this screen
         self.addHelp(HELP.getHelp(HELP.KEY_AOPTIONS))
 
         # Now display 
