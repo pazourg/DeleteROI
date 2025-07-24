@@ -18,11 +18,11 @@ DeleteROI is dependent upon installations of FIJI (Schindelin et al., 2012) and 
 You will need to install [FIJI version 2024-09-25](https://imagej.net/software/fiji/downloads) or later noting the location
 of the installation directory.  
 
-The DeleteROI plugin is located in the [Releases](/Releases) directory (either in GitHub or built locally as described 
+The DeleteROI plugin is located in [releases](releases) on the right sidebar in GitHub or built locally as described 
 in the [Building a new version](#building-a-new-version) section).  It is self contained in a <b>jar</b> file starting with 
 the name "DeleteROI_" (the underscore is required by ImageJ/Fiji).  The latest version of DeleteROI is the following:
 
-> [DeleteROI_-1.0.3-2.jar] https://github.com/pazourg/DeleteROI/releases/download/v1.0.3-2/DeleteROI_-1.0.3-2.jar - Released July 24th, 2025
+> [DeleteROI_-1.0.3-2.jar](https://github.com/pazourg/DeleteROI/releases/download/v1.0.3-2/DeleteROI_-1.0.3-2.jar) - Released July 24th, 2025
 
 You can install the plugin by starting up Fiji and then selecting Plugin->Install... from the menu.  Please note that there
 are two versions of the Install command in the Plugin menu.  Select the "Install..." option <b>not</b> the "Install Plugin" 
